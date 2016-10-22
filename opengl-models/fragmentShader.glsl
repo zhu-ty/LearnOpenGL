@@ -7,17 +7,11 @@ uniform vec3 viewPos;
 
 out vec4 color;
 
-uniform sampler2D texture_diffuse1;
-uniform sampler2D texture_diffuse2;
-uniform sampler2D texture_diffuse3;
-uniform sampler2D texture_specular1;
-uniform sampler2D texture_specular2;
-
 
 struct Material
 {
-    sampler2D diffuse;
-    sampler2D specular;
+    sampler2D diffuse1;
+    sampler2D specular1;
     float shininess;
 };
 uniform Material material;
@@ -102,9 +96,9 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 	vec3 reflectDir = reflect(-lightDir, normal);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 	// 合并各个光照分量
-	vec3 ambient = light.ambient  * vec3(texture(material.diffuse, TexCoords));
-	vec3 diffuse = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoords));
-	vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+	vec3 ambient = light.ambient  * vec3(texture(material.diffuse1, TexCoords));
+	vec3 diffuse = light.diffuse  * diff * vec3(texture(material.diffuse1, TexCoords));
+	vec3 specular = light.specular * spec * vec3(texture(material.specular1, TexCoords));
 	return (ambient + diffuse + specular);
 }
 
@@ -122,9 +116,9 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 	float attenuation = 1.0f / (light.constant + light.linear * distance +
 		light.quadratic * (distance * distance));
 	// 将各个分量合并
-	vec3 ambient = light.ambient  * vec3(texture(material.diffuse, TexCoords));
-	vec3 diffuse = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoords));
-	vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+	vec3 ambient = light.ambient  * vec3(texture(material.diffuse1, TexCoords));
+	vec3 diffuse = light.diffuse  * diff * vec3(texture(material.diffuse1, TexCoords));
+	vec3 specular = light.specular * spec * vec3(texture(material.specular1, TexCoords));
 	ambient *= attenuation;
 	diffuse *= attenuation;
 	specular *= attenuation;
@@ -142,19 +136,19 @@ vec3 CalcTorchLight(TorchLight light, vec3 normal, vec3 fragPos)
 
 	// 执行光照计算
 	//环境
-	vec3 ambient_t = vec3(texture(material.diffuse, TexCoords)) * light.ambient;
+	vec3 ambient_t = vec3(texture(material.diffuse1, TexCoords)) * light.ambient;
 
 	//漫反射
 	vec3 norm_t = normalize(normal);
 	//vec3 lightDir = normalize(light.position - FragPos);
 	float diff_t = max(dot(norm_t, torchDir), 0.0);
-	vec3 diffuse_t = diff_t * (light.diffuse * vec3(texture(material.diffuse, TexCoords)));
+	vec3 diffuse_t = diff_t * (light.diffuse * vec3(texture(material.diffuse1, TexCoords)));
 
 	//镜面反射
 	vec3 viewDir_t = normalize(viewPos - fragPos);
 	vec3 reflectDir_t = reflect(-torchDir, norm_t);
 	float spec_t = pow(max(dot(viewDir_t, reflectDir_t), 0.0), material.shininess);
-	vec3 specular_t = vec3(texture(material.specular, TexCoords)) * (spec_t * light.specular);
+	vec3 specular_t = vec3(texture(material.specular1, TexCoords)) * (spec_t * light.specular);
 
 	//距离
 	float distance_t = length(light.position - FragPos);
