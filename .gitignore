@@ -31,6 +31,7 @@
 # Special
 *.avi
 *.mp4
+opengl.VC.VC*
 
 # User-specific files
 *.suo
